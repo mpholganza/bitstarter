@@ -51,30 +51,46 @@ var checkHtmlFile = function(htmlfile, checksfile, url) {
     if (url) {
       rest.get(url).on('complete', function(result, response) {
         if (result instanceof Error) {
-          html = false;
+          console.log("Error downloading html file");
         } else {
-          html = result;
+          checkHtml(result, checksfile);
         }
       });
     } else {
-      html = fs.readFileSync(htmlfile);
+      checkHtml(fs.readFileSync(htmlfile), checksfile);
     }
 
-    $ = cheerioHtmlFile(html);
+    /*$ = cheerioHtmlFile(html);
     var checks = loadChecks(checksfile).sort();
     var out = {};
     for(var ii in checks) {
         var present = $(checks[ii]).length > 0;
         out[checks[ii]] = present;
     }
-    return out;
+    return out;*/
 };
+
+var checkHtml = function(html, checksfile) {
+  $ = cheerioHtmlFile(html);
+  var checks = loadChecks(checksfile).sort();
+  var out = {};
+  for(var ii in checks) {
+    var present = $(checks[ii]).length > 0;
+    out[checks[ii]] = present;
+  }
+  printResults(out);
+}
 
 var clone = function(fn) {
     // Workaround for commander.js issue.
     // http://stackoverflow.com/a/6772648
     return fn.bind({});
 };
+
+var printResults = function (json) {
+  var outJson = JSON.stringify(json, null, 4);
+  console.log(outJson);
+}
 
 if(require.main == module) {
     program
